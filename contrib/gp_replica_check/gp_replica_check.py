@@ -33,6 +33,7 @@ import sys
 import subprocess
 import threading
 import Queue
+import multiprocessing.pool
 
 class ReplicaCheck(threading.Thread):
     def __init__(self, segrow, datname, relation_types):
@@ -124,16 +125,17 @@ SELECT datname FROM pg_catalog.pg_database WHERE datname != 'template0'
     return dblist
 
 def start_verification(segmap, dblist, relation_types):
+    pool = multiprocessing.pool.ThreadPool(10)
     replica_check_list = []
     for content, seglist in segmap.items():
         for segrow in seglist:
             for dbname in dblist:
                 replica_check = ReplicaCheck(segrow, dbname, relation_types)
                 replica_check_list.append(replica_check)
-                replica_check.start()
+
+    pool.map(ReplicaCheck.run, replica_check_list)
 
     for replica_check in replica_check_list:
-        replica_check.join()
         print "\n".join(replica_check.output)
 
     for replica_check in replica_check_list:
