@@ -46,6 +46,7 @@ class ReplicaCheck(threading.Thread):
         self.datname = datname
         self.relation_types = relation_types;
         self.result = False
+        self.output = []
 
     def __str__(self):
         return 'Host: %s, Port: %s, Database: %s\n\
@@ -54,21 +55,21 @@ Mirror Data Directory Location: %s' % (self.host, self.port, self.datname,
                                           self.ploc, self.mloc)
 
     def run(self):
-        print(self)
+        self.output.append(str(self))
         cmd = '''PGOPTIONS='-c gp_session_role=utility' psql -h %s -p %s -c "select * from gp_replica_check('%s', '%s', '%s')" %s''' % (self.host, self.port,
                                                                                                                                         self.ploc, self.mloc,
                                                                                                                                         self.relation_types,
                                                                                                                                         self.datname)
 
         if self.primary_status.strip() == 'd':
-            print "Primary segment for content %d is down" % self.content
+             self.output.append("Primary segment for content %d is down" % self.content)
         else:
             try:
                 res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-                print res
+                self.output.append(res)
                 self.result = True if res.strip().split('\n')[-2].strip() == 't' else False
             except subprocess.CalledProcessError, e:
-                print 'returncode: (%s), cmd: (%s), output: (%s)' % (e.returncode, e.cmd, e.output)
+                self.output.append('returncode: (%s), cmd: (%s), output: (%s)' % (e.returncode, e.cmd, e.output))
 
 def install_extension(databases):
     get_datname_sql = ''' SELECT datname FROM pg_database WHERE datname != 'template0' '''
@@ -130,7 +131,10 @@ def start_verification(segmap, dblist, relation_types):
                 replica_check = ReplicaCheck(segrow, dbname, relation_types)
                 replica_check_list.append(replica_check)
                 replica_check.start()
-                replica_check.join()
+
+    for replica_check in replica_check_list:
+        replica_check.join()
+        print "\n".join(replica_check.output)
 
     for replica_check in replica_check_list:
         if not replica_check.result:
