@@ -494,6 +494,9 @@ class GPExpandTestCase(MPPTestCase, ScenarioTestCase):
 
     def construct_expansion_scenario(self):
 
+        # REMOVE ME - intentional failure to get cluster
+        raise Exception("fixme!")
+        # REMOVE ME
         classlist = []
         classlist.append('mpp.gpdb.tests.catalog.schema_topology.test_ST_EnhancedTableFunctionTest.EnhancedTableFunctionTest')
         classlist.append('mpp.gpdb.tests.catalog.schema_topology.test_ST_OSSpecificSQLsTest.OSSpecificSQLsTest')
