@@ -200,7 +200,8 @@ def connect(dburl, utility=False, verbose=False,
 
     for i in range(retries):
         try:
-            cnx  = pgdb._connect_(cstr, dbhost, dbport, dbopt, dbtty, dbuser, dbpasswd)
+            hoststr = dbhost+":"+str(dbport)
+            cnx  = pgdb.connect(dsn="::::"+dbopt, host=hoststr, user=dbuser, password=dbpasswd, database=dbbase)
             break
 
         except pgdb.InternalError, e:
@@ -212,7 +213,7 @@ def connect(dburl, utility=False, verbose=False,
     if cnx is None:
         raise ConnectionError('Failed to connect to %s' % dbbase)
 
-    conn = pgdb.pgdbCnx(cnx)
+    conn = pgdb.Connection(cnx)
 
     #by default, libpq will print WARNINGS to stdout
     if not verbose:

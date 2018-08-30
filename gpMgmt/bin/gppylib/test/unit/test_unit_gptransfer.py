@@ -9,7 +9,7 @@ from mock import *
 from gp_unittest import *
 from gppylib.gparray import Segment, GpArray
 from gppylib.db.dbconn import UnexpectedRowsError
-from pygresql import pgdb
+from pygresql.pgdb import Cursor
 
 cursor_keys = dict(
     normal_tables=re.compile(".*n\.nspname, c\.relname, c\.relstorage.*c\.oid NOT IN \( SELECT parchildrelid.*"),
@@ -48,7 +48,7 @@ class GpTransfer(GpTestCase):
         # (which is fine so far), but to fully support specs
         # we need to go through and mock all the SQL calls
         # self.db_connection = MagicMock(spec=["__exit__", "close", "__enter__", "commit", "rollback"])
-        self.cursor = MagicMock(spec=pgdb.pgdbCursor)
+        self.cursor = MagicMock(spec=Cursor)
 
         self.db_singleton = Mock()
         self.workerpool = MagicMock()
