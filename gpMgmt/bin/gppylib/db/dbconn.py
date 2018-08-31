@@ -213,7 +213,7 @@ def connect(dburl, utility=False, verbose=False,
     if cnx is None:
         raise ConnectionError('Failed to connect to %s' % dbbase)
 
-    conn = pgdb.Connection(cnx)
+    conn = cnx
 
     #by default, libpq will print WARNINGS to stdout
     if not verbose:
