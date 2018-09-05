@@ -1055,6 +1055,7 @@ class GpArray:
         array.__version = version
         array.recoveredSegmentDbids = recoveredSegmentDbids
         array.hasMirrors = hasMirrors
+        conn.close()
 
         return array
 
